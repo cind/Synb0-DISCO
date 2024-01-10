@@ -1,17 +1,5 @@
 # Synb0-DISCO
 
-## Contents
-
-* [Overview](#overview)
-* [Dockerized Application](#dockerized-application)
-* [Docker Instructions](#docker-instructions)
-* [Singularity Instructions](#singularity-instructions)
-* [Non-containerized Instructions](#non-containerized-instructions)
-* [Flags](#flags)
-* [Inputs](#inputs)
-* [Outputs](#outputs)
-* [After Running](#after-running)
-
 ## Overview
 
 This repository implements the paper "Synthesized b0 for diffusion distortion correction" and "Distortion correction of diffusion weighted MRI without reverse phase-encoding scans or field-maps". 
@@ -24,53 +12,21 @@ Schilling KG, Blaber J, Hansen C, Cai L, Rogers B, Anderson AW, Smith S, Kanakar
 
 Schilling KG, Blaber J, Huo Y, Newton A, Hansen C, Nath V, Shafer AT, Williams O, Resnick SM, Rogers B, Anderson AW, Landman BA. Synthesized b0 for diffusion distortion correction (Synb0-DisCo). Magn Reson Imaging. 2019 Dec;64:62-70. doi: 10.1016/j.mri.2019.05.008. Epub 2019 May 7. PMID: 31075422; PMCID: PMC6834894.
 
-## Dockerized Application
+## CIND Usage
 
-For deployment we provide a [Docker container](https://hub.docker.com/repository/docker/leonyichencai/synb0-disco) which uses the trained model to predict the undistorted b0 to be used in susceptability distortion correction for diffusion weighted MRI. For those who prefer, Docker containers can be converted to Singularity containers (see below).
+The SynB0-DISCO tool performs distortion correction on ASL M0 scans and is used as part of the oxasl pipeline (hosted at https://github.com/cind/pijp-oxasl/tree/develop). This repo was forked from MASILab (hosted at https://github.com/MASILab/Synb0-DISCO) in order to use the tool in limited memory environments without CUDA or Docker/Singularity containers. The main change is that it uses a newer version of PyTorch that supports mixed precision computations in inference, so that it doesn't blow up the CPU.
 
-## Docker Instructions:
+Questions? Please contact Eliana Phillips at eliana.phillips2.718@gmail.com.
 
-```
-sudo docker run --rm \
--v $(pwd)/INPUTS/:/INPUTS/ \
--v $(pwd)/OUTPUTS:/OUTPUTS/ \
--v <path to license.txt>:/extra/freesurfer/license.txt \
---user $(id -u):$(id -g) \
-leonyichencai/synb0-disco:v3.0
-<flags>
-```
+## Instructions
 
-* If within your current directory you have your INPUTS and OUTPUTS folder, you can run this command copy/paste with the only change being \<path to license.txt\> should point to the freesurfer license.txt file on your system.
-* If INPUTS and OUTPUTS are not within your current directory, you will need to change $(pwd)/INPUTS/ to the full path to your input directory, and similarly for OUTPUTS.
-* For Mac users, Docker defaults allows only 2gb of RAM and 2 cores - we suggest giving Docker access to >13Gb of RAM 
-* Additionally on MAC, if permissions issues prevent binding the path to the license.txt file, we suggest moving the freesurfer license.txt file to the current path and replacing the path line to " $(pwd)/license.txt:/extra/freesurfer/license.txt "
+The main script is in `pipeline.sh`. The paths are specific to CIND's file system. SynB0-DISCO requires FSL, FreeSurfer, ANTs, and c3d_affine_tool and the paths in `pipeline.sh` must point to these programs.
 
-## Singularity Instructions
-
-First, build the synb0.simg container in the current directory:
+To run the pipeline,
 
 ```
-singularity pull docker://leonyichencai/synb0-disco:v3.0
+pipeline.sh path/to/inputs path/to/outputs  <flags>
 ```
-
-Then, to run the synb0.simg container:
-
-```
-singularity run -e \
--B INPUTS/:/INPUTS \
--B OUTPUTS/:/OUTPUTS \
--B <path to license.txt>:/extra/freesurfer/license.txt \
-<path to synb0.simg>
-<flags>
-```
-
-* \<path to license.txt\> should point to freesurfer licesnse.txt file
-* \<path to synb0.simg\> should point to the singularity container 
-
-## Non-containerized Instructions
-
-If you choose to run this in bash, the primary script is located in src/pipeline.sh. The paths in pipeline.sh are specific to the docker/singularity file
-systems, but the processing can be replicated using the scripts in src. These utilize freesurfer, FSL, ANTS, and a python environment with pytorch.
 
 ## Flags:
 
@@ -80,7 +36,11 @@ Skip the application of FSL's topup susceptibility correction. As a default, we 
 
 **--stripped**
 
-Lets the container know the supplied T1 has already been skull stripped. As a default, we assume it is not skull stripped. *Please note this feature requires a well-stripped T1 as stripping artifacts can affect performance.*
+Lets the script know the supplied T1 has already been skull stripped. As a default, we assume it is not skull stripped. *Please note this feature requires a well-stripped T1 as stripping artifacts can affect performance. This tool uses BET for skull stripping which produces poor results, so it is necessary that a tool such as `mri_synthstrip` is used to perform skull stripping before running SynB0-DISCO.*
+
+**--usevenv**
+
+Activates a python virtual environment. By default this is off as it is assumed SynB0-DISCO will be run from our oxasl pipeline, to avoid clobbering with the pipeline's virtual environment. When running outside of the pipeline, this flag must be used.
 
 ## Inputs
 
@@ -134,25 +94,9 @@ The undistorted synthetic output, and a smoothed distorted input can then be sta
 * b0_d_smooth.nii.gz: smoothed b0
 * b0_all.nii.gz: stack of distorted and synthetized image as input to topup        
 
-Finally, the topup outputs to be used for eddy:
+Finally, the topup outputs to be used for applytopup:
 
 * topup_movpar.txt
 * b0_all_topup.nii.gz
 * b0_all.topup_log         
 * topup_fieldcoef.nii.gz
-
-
-## After Running
-
-After running, we envision using the topup outputs directly with FSL's eddy command, exactly as would be done if a full set of reverse PE scans was acquired. For example:
-
-```
-eddy --imain=path/to/diffusiondata.nii.gz --mask=path/to/brainmask.nii.gz \
---acqp=path/to/acqparams.txt --index=path/to/index.txt \
---bvecs=path/to/bvecs.txt --bvals=path/to/bvals.txt 
---topup=path/to/OUTPUTS/topup --out=eddy_unwarped_images
-```
-
-where imain is the original diffusion data, mask is a brain mask, acqparams is from before, index is the traditional eddy index file which contains an index (most likely a 1) for every volume in the diffusion dataset, topup points to the output of the singularity/docker pipeline, and out is the eddy-corrected images utilizing the field coefficients from the previous step.
-
-Alternatively, if you choose to run --notopup flag, the file you are interested in is b0_all. This is a concatenation of the real b0 and the synthesized undistorted b0. We run topup with this file, although you may chose to do so utilizing your topup version or config file. 
