@@ -16,7 +16,7 @@ Schilling KG, Blaber J, Huo Y, Newton A, Hansen C, Nath V, Shafer AT, Williams O
 
 The SynB0-DISCO tool performs distortion correction on ASL M0 scans and is used as part of the oxasl pipeline (hosted at https://github.com/cind/pijp-oxasl/tree/develop). This repo was forked from MASILab (hosted at https://github.com/MASILab/Synb0-DISCO) in order to use the tool in limited memory environments without CUDA or Docker/Singularity containers. The main change is that it uses a newer version of PyTorch that supports mixed precision computations in inference, so that it doesn't blow up the CPU.
 
-Questions? Please contact Eliana Phillips at eliana.phillips2.718@gmail.com.
+If you have questions or find an issue, please contact Eliana Phillips at eliana.phillips2.718@gmail.com.
 
 ## Instructions
 
@@ -25,7 +25,7 @@ The main script is in `pipeline.sh`. The paths are specific to CIND's file syste
 To run the pipeline,
 
 ```
-pipeline.sh path/to/inputs path/to/outputs  <flags>
+pipeline.sh path/to/inputs path/to/outputs <flags>
 ```
 
 ## Flags:
@@ -45,8 +45,8 @@ Activates a python virtual environment. By default this is off as it is assumed 
 ## Inputs
 
 The INPUTS directory must contain the following:
-* b0.nii.gz: the non-diffusion weighted image(s)
-* T1.nii.gz: the T1-weighted image (either raw or skull-stripped, see [Flags](#flags))
+* b0.nii.gz: the raw M0 image, must be named b0 to be picked up by Synb0
+* T1.nii.gz: the T1-weighted image (preferably skull-stripped with the --stripped flag)
 * acqparams.txt: A text file that describes the acqusition parameters, and is described in detail on the FslWiki for topup (https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup). Briefly,
 it describes the direction of distortion and tells TOPUP that the synthesized image has an effective echo spacing of 0 (infinite bandwidth). An example acqparams.txt is
 displayed below, in which distortion is in the second dimension, note that the second row corresponds to the synthesized, undistorted, b0:
@@ -94,9 +94,15 @@ The undistorted synthetic output, and a smoothed distorted input can then be sta
 * b0_d_smooth.nii.gz: smoothed b0
 * b0_all.nii.gz: stack of distorted and synthetized image as input to topup        
 
-Finally, the topup outputs to be used for applytopup:
+The topup outputs:
 
 * topup_movpar.txt
 * b0_all_topup.nii.gz
 * b0_all.topup_log         
 * topup_fieldcoef.nii.gz
+
+After running Synb0, `applytopup` must be run to apply the distortion corrections to the raw ASL image. The syntax is as follows, 
+
+```
+applytopup --imain=<raw ASL> --inindex=1 --datain=acqparams.txt --topup=topup --out=<undistorted ASL> --method=jac
+```

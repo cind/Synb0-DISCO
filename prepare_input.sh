@@ -68,7 +68,7 @@ eval $EPI_REG_CMD
 echo -------
 echo converting FSL transform to ANTS transform
 EPI_REG_D_ANTS_PATH=$JOB_PATH/epi_reg_d_ANTS.txt
-C3D_TOOL_PATH=$ROOT_DIR/c3d_affine_tool
+C3D_TOOL_PATH=/opt/itk-snap/c3d_affine_tool
 C3D_CMD="$C3D_TOOL_PATH -ref $T1_PATH -src $B0_D_PATH $EPI_REG_D_MAT_PATH -fsl2ras -oitk $EPI_REG_D_ANTS_PATH"
 echo $C3D_CMD
 eval $C3D_CMD
