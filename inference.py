@@ -1,5 +1,6 @@
 import os
 import sys
+print(sys.path)
 import glob
 import math
 
@@ -70,7 +71,7 @@ def inference(T1_path, b0_d_path, model, device):
 
 if __name__ == '__main__':
     # Get input arguments ----------------------------------#
-    print(sys.path)
+    #print(sys.path)
     T1_input_path = sys.argv[1]
     b0_input_path = sys.argv[2]
     b0_output_path = sys.argv[3]
