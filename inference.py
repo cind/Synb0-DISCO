@@ -3,6 +3,7 @@ import sys
 print(sys.path)
 import glob
 import math
+import gc
 
 from random import shuffle
 
@@ -25,6 +26,9 @@ from model import UNet3D
 
 
 def inference(T1_path, b0_d_path, model, device):
+    # Clear unused data before each run
+    gc.collect()
+
     # Eval mode
     model.eval()
 
@@ -49,15 +53,15 @@ def inference(T1_path, b0_d_path, model, device):
 
     # Set "data"
     img_data = np.concatenate((img_b0_d, img_T1), axis=1)
+    # allocating img_data takes ~4.25GB
+    print(img_data.shape)
 
     # Send data to device
     img_data = torch.from_numpy(img_data).float().to(device)
 
-    # Pass through model
-    # test torch autocast to float16
+    # Pass through model using autocast for mixed precision
     with torch.autocast(device_type='cpu', dtype=torch.bfloat16):
         img_model = model(img_data)
-    #img_model = model(img_data)
 
     # Unnormalize model
     img_model = util.unnormalize_img(img_model, max_img_b0_d, min_img_b0_d, 1, -1)
