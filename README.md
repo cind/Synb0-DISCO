@@ -36,7 +36,9 @@ Skip the application of FSL's topup susceptibility correction. As a default, we 
 
 **--stripped**
 
-Lets the script know the supplied T1 has already been skull stripped. As a default, we assume it is not skull stripped. *Please note this feature requires a well-stripped T1 as stripping artifacts can affect performance. This tool uses BET for skull stripping which produces poor results, so it is necessary that a tool such as `mri_synthstrip` is used to perform skull stripping before running SynB0-DISCO.*
+Lets the script know the supplied T1 has already been skull stripped. As a default, we assume it is not skull stripped.
+Please note this feature requires a well-stripped T1 as stripping artifacts can affect performance.
+It is advisable to supply both a whole-head T1 and skull-stripped T1 and not use this flag.
 
 **--usevenv**
 
@@ -46,7 +48,8 @@ Activates a python virtual environment. By default this is off as it is assumed 
 
 The INPUTS directory must contain the following:
 * b0.nii.gz: the raw M0 image, must be named b0 to be picked up by Synb0
-* T1.nii.gz: the T1-weighted image (preferably skull-stripped with the --stripped flag)
+* T1.nii.gz: the T1-weighted image (whole-head)
+* T1_brain.nii.gz: the T1 skull stripped image
 * acqparams.txt: A text file that describes the acqusition parameters, and is described in detail on the FslWiki for topup (https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup). Briefly,
 it describes the direction of distortion and tells TOPUP that the synthesized image has an effective echo spacing of 0 (infinite bandwidth). An example acqparams.txt is
 displayed below, in which distortion is in the second dimension, note that the second row corresponds to the synthesized, undistorted, b0:
@@ -55,22 +58,21 @@ displayed below, in which distortion is in the second dimension, note that the s
     0 1 0 0.062
     0 1 0 0.000
     ```
+* M0_to_T1_rigid_init.nii.gz: the input (distorted) M0 image rigid registered (linear, 6 degrees of freedom) to the T1 (whole-head) using Normalized Mutual Information cost function.
+* M0_to_T1_rigid_init.mat: the transform matrix generating the above image.
 
 ## Outputs
 
 After running, the OUTPUTS directory contains the following preprocessing files:
 
-* T1_mask.nii.gz: brain extracted (skull-stripped) T1 (a copy of the input if T1.nii.gz is already skull-stripped)
+* T1_brain.nii.gz: brain extracted (skull-stripped) T1
 * T1_norm.nii.gz: normalized T1
-* epi_reg_d.mat: epi_reg b0 to T1 in FSL format
-* epi_reg_d_ANTS.txt: epi_reg to T1 in ANTS format
+* M0_to_T1_rigid_init_ANTS.txt: initial M0-to-T1 registration matrix in ANTS format
 * ANTS0GenericAffine.mat: Affine ANTs registration of T1_norm to/from MNI space
 * ANTS1Warp.nii.gz: Deformable ANTs registration of T1_norm to/from MNI space  
 * ANTS1InverseWarp.nii.gz: Inverse deformable ANTs registration of T1_norm to/from MNI space  
 * T1_norm_lin_atlas_2_5.nii.gz: linear transform T1 to MNI   
 * b0_d_lin_atlas_2_5.nii.gz: linear transform distorted b0 in MNI space   
-* T1_norm_nonlin_atlas_2_5.nii.gz: nonlinear transform T1 to MNI   
-* b0_d_nonlin_atlas_2_5.nii.gz: nonlinear transform distorted b0 in MNI space  
 
 The OUTPUTS directory also contains inferences (predictions) for each of five folds utilizing T1_norm_lin_atlas_2_5.nii.gz and b0_d_lin_atlas_2_5.nii.gz as inputs:
 
