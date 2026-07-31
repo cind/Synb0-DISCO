@@ -37,14 +37,15 @@ do
 done
 
 # Set up freesurfer
-export FSVERSION=7.3.2
-export FREESURFER_HOME=/opt/freesurfer/7.3.2
+export FSVERSION=7.4.1
+export FREESURFER_HOME=/opt/freesurfer/7.4.1
+export FS_LICENSE=$FREESURFER_HOME/license.txt
 source $FREESURFER_HOME/SetUpFreeSurfer.sh
 
 # Set up FSL
-export FSLVERSION=6.0.5.2
+export FSLVERSION=6.0.6.5
 export FSLOUTPUTTYPE=NIFTI_GZ
-export FSLDIR=/opt/fsl/fsl-6.0.5.2
+export FSLDIR=/opt/fsl/6.0.6.5
 export PATH=$PATH:$FSLDIR/bin
 source $FSLDIR/etc/fslconf/fsl.sh
 
