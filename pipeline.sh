@@ -40,6 +40,8 @@ done
 export FSVERSION=7.4.1
 export FREESURFER_HOME=/opt/freesurfer/7.4.1
 export FS_LICENSE=$FREESURFER_HOME/license.txt
+export PERL5LIB=$FREESURFER_HOME/mni/share/perl5
+export PATH=$PATH:$FREESURFER_HOME/bin:$FREESURFER_HOME/fsfast/bin:$FREESURFER_HOME/tktools:$FREESURFER_HOME/mni/bin
 source $FREESURFER_HOME/SetUpFreeSurfer.sh
 
 # Set up FSL
@@ -50,8 +52,8 @@ export PATH=$PATH:$FSLDIR/bin
 source $FSLDIR/etc/fslconf/fsl.sh
 
 # Set up ANTS
-export ANTSVERSION=ants-2017-12-07
-export ANTSPATH=/opt/ants/bin
+export ANTSVERSION=2.6.3
+export ANTSPATH=/opt/ants/2.6.3/bin
 export PATH=$PATH:$ANTSPATH
 
 # Prepare input
