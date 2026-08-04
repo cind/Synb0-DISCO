@@ -50,7 +50,8 @@ eval $NORMALIZE_CMD
 echo -------
 echo converting FSL transform to ANTS transform
 INIT_REG_MAT_ANTS_PATH=$JOB_PATH/M0_to_T1_rigid_init_ANTS.txt
-C3D_TOOL_PATH=/opt/itk-snap/c3d_affine_tool
+#C3D_TOOL_PATH=/opt/itk-snap/c3d_affine_tool
+C3D_TOOL_PATH=/m/Dev/ADNI4_wFace/synb0/extra/c3d_affine_tool
 C3D_CMD="$C3D_TOOL_PATH -ref $T1_PATH -src $B0_D_PATH $INIT_REG_MAT_PATH -fsl2ras -oitk $INIT_REG_MAT_ANTS_PATH"
 echo $C3D_CMD
 eval $C3D_CMD
