@@ -7,18 +7,16 @@ ROOT_DIR=/m/Dev/ADNI4_wFace/synb0/Synb0-DISCO
 # Get inputs
 B0_D_PATH=$1
 T1_PATH=$2
-T1_BRAIN_PATH=$3
-T1_ATLAS_PATH=$4
-T1_ATLAS_2_5_PATH=$5
-INIT_REG_PATH=$6
-INIT_REG_MAT_PATH=$7
-RESULTS_PATH=$8
+T1_ATLAS_PATH=$3
+T1_ATLAS_2_5_PATH=$4
+INIT_REG_PATH=$5
+INIT_REG_MAT_PATH=$6
+RESULTS_PATH=$7
 
 echo -------
 echo INPUTS:
 echo Distorted b0 path: $B0_D_PATH
 echo T1 path: $T1_PATH
-echo T1 brain path: $T1_BRAIN_PATH
 echo T1 atlas path: $T1_ATLAS_PATH
 echo T1 2.5 iso atlas path: $T1_ATLAS_2_5_PATH
 echo Results path: $RESULTS_PATH
@@ -57,8 +55,7 @@ echo $C3D_CMD
 eval $C3D_CMD
 
 
-# ANTs register T1 to atlas (both must either be full T1s or stripped T1s)
-# using whole-head T1
+# ANTs register T1 to atlas 
 # this uses input T1 and 1mm MNI atlas, then uses the transform later to register/warp the normalized T1 to the 2.5mm MNI atlas.
 # that transform is also used to register/warp the distorted M0 to the 2.5mm MNI atlas.
 echo -------
@@ -88,7 +85,6 @@ eval $APPLYTRANSFORM_CMD
 echo -------
 echo Copying results to results path...
 cp $T1_NORM_PATH $RESULTS_PATH
-cp $T1_BRAIN_PATH $RESULTS_PATH
 cp $INIT_REG_MAT_ANTS_PATH $RESULTS_PATH
 cp "$ANTS_OUT"0GenericAffine.mat $RESULTS_PATH
 cp "$ANTS_OUT"1Warp.nii.gz $RESULTS_PATH

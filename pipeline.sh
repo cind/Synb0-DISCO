@@ -12,7 +12,7 @@ trap die ERR SIGINT
 ROOT_DIR=/m/Dev/ADNI4_wFace/synb0/Synb0-DISCO
 INPUTS=$1
 OUTPUTS=$2
-PIPELINE_DIR=/m/Researchers/Eliana/pipelines/pijp-oxasl
+PIPELINE_DIR=/m/Researchers/Eliana/pipelines/pijp-qasl
 source $PIPELINE_DIR/venv/bin/activate
 
 # Set vars
@@ -57,9 +57,8 @@ export ANTSPATH=/opt/ants/2.6.3/bin
 export PATH=$PATH:$ANTSPATH
 
 # Prepare input
-# include T1_brain.nii.gz as separate input from T1.nii.gz (whole-head T1)
-# also input M0-to-T1 initial linear registration and transform matrix
-$ROOT_DIR/prepare_input.sh $INPUTS/b0.nii.gz $INPUTS/T1.nii.gz $INPUTS/T1_brain.nii.gz $MNI_T1_1_MM_FILE $ROOT_DIR/atlases/mni_icbm152_t1_tal_nlin_asym_09c_2_5.nii.gz $INPUTS/M0_to_T1_rigid_init.nii.gz $INPUTS/M0_to_T1_rigid_init.mat $OUTPUTS
+# include M0-to-T1 initial linear registration and transform matrix
+$ROOT_DIR/prepare_input.sh $INPUTS/b0.nii.gz $INPUTS/T1.nii.gz $MNI_T1_1_MM_FILE $ROOT_DIR/atlases/mni_icbm152_t1_tal_nlin_asym_09c_2_5.nii.gz $INPUTS/M0_to_T1_rigid_init.nii.gz $INPUTS/M0_to_T1_rigid_init.mat $OUTPUTS
 
 # Run inference
 NUM_FOLDS=5
