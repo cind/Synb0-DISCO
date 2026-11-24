@@ -1,0 +1,13 @@
+--warpres=20,16,14,12,10,6
+--subsamp=2,2,2,2,2,2
+--fwhm=8,6,4,3,3,2
+--miter=5,5,5,5,5,10
+--lambda=0.005,0.001,0.0001,0.00002,0.00001,0.000005
+--ssqlambda=1
+--regmod=bending_energy
+--estmov=1,1,1,0,0,0
+--minmet=0,0,0,0,0,1
+--splineorder=3
+--numprec=double
+--interp=spline
+--scale=0

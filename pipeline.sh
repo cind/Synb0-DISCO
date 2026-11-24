@@ -1,5 +1,5 @@
 #!/bin/bash
-# ELIANA'S VERSION
+set -eo pipefail
 
 function die {
     echo "Caught signal, exiting."

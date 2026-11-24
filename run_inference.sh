@@ -9,7 +9,7 @@ trap die ERR SIGINT
 
 # Set paths for input/output
 ROOT_DIR=/m/Dev/ADNI4_wFace/synb0/Synb0-DISCO
-PIPELINE_DIR=/m/Researchers/Eliana/pipelines/pijp-oxasl
+PIPELINE_DIR=/m/Researchers/Eliana/pipelines/pijp-qasl
 INPUTS=$1
 OUTPUTS=$2
 source $PIPELINE_DIR/venv/bin/activate
